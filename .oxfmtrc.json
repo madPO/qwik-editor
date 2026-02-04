@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/crates/oxc_formatter/src/options/schema.json",
+  "indentWidth": 2,
+  "useTabs": false,
+  "lineWidth": 100,
+  "ignorePatterns": [
+    "**/*.log",
+    "**/.DS_Store",
+    "dist",
+    "lib",
+    "lib-types",
+    "node_modules",
+    "build",
+    ".cache"
+  ]
+}
