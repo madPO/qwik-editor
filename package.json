@@ -1,6 +1,7 @@
 {
   "name": "qwik-editor",
   "version": "0.0.1",
+  "license": "MIT",
   "description": "A WYSIWYG markdown editor library for Qwik with block-based editing support",
   "main": "./lib/index.qwik.mjs",
   "qwik": "./lib/index.qwik.mjs",
