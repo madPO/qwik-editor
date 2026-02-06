@@ -1,0 +1,81 @@
+.qwik-editor {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100px;
+  padding: 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #333;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.qwik-editor:focus-within {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.editor-paragraph,
+.editor-heading {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  outline: none;
+}
+
+.editor-paragraph:empty:before {
+  content: attr(data-placeholder);
+  color: #aaa;
+}
+
+.editor-heading {
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.editor-heading-1 {
+  font-size: 2rem;
+}
+
+.editor-heading-2 {
+  font-size: 1.5rem;
+}
+
+.editor-heading-3 {
+  font-size: 1.25rem;
+}
+
+.editor-placeholder {
+  color: #aaa;
+  font-style: italic;
+  margin: 0;
+}
+
+.block-type-selector {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 150px;
+  overflow: hidden;
+}
+
+.selector-option {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+.selector-option.active,
+.selector-option:hover {
+  background-color: #f0f7ff;
+  color: #007bff;
+}
+
+/* Auto-resize is handled by not setting a fixed height on the container and blocks */

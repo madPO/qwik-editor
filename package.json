@@ -1,28 +1,24 @@
 {
   "name": "qwik-editor",
   "version": "0.0.1",
-  "license": "MIT",
+  "private": false,
   "description": "A WYSIWYG markdown editor library for Qwik with block-based editing support",
-  "main": "./lib/index.qwik.mjs",
-  "qwik": "./lib/index.qwik.mjs",
-  "types": "./lib-types/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./lib/index.qwik.mjs",
-      "require": "./lib/index.qwik.cjs",
-      "types": "./lib-types/index.d.ts"
-    }
-  },
+  "license": "MIT",
   "files": [
     "lib",
     "lib-types"
   ],
-  "engines": {
-    "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
-  },
-  "private": false,
-  "sideEffects": false,
   "type": "module",
+  "sideEffects": false,
+  "main": "./lib/index.qwik.mjs",
+  "types": "./lib-types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib-types/index.d.ts",
+      "import": "./lib/index.qwik.mjs",
+      "require": "./lib/index.qwik.cjs"
+    }
+  },
   "scripts": {
     "build": "qwik build",
     "build.lib": "vite build --mode lib",
@@ -37,14 +33,30 @@
     "test": "echo \"No test specified\" && exit 0",
     "qwik": "qwik"
   },
+  "dependencies": {
+    "@types/hast": "^3.0.4",
+    "hast-util-from-html-isomorphic": "^2.0.0",
+    "hast-util-to-html": "^9.0.5",
+    "hast-util-to-mdast": "^10.1.2",
+    "mdast-util-from-markdown": "^2.0.2",
+    "mdast-util-to-hast": "^13.2.1",
+    "mdast-util-to-markdown": "^2.1.2",
+    "micromark": "^4.0.2"
+  },
   "devDependencies": {
     "@builder.io/qwik": "1.19.0",
+    "@types/mdast": "^4.0.4",
     "@types/node": "20.19.0",
     "np": "^8.0.4",
+    "oxfmt": "^0.28.0",
     "oxlint": "^0.16.1",
     "typescript": "5.4.5",
     "undici": "*",
     "vite": "7.3.1",
     "vite-tsconfig-paths": "^4.2.1"
-  }
+  },
+  "engines": {
+    "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
+  },
+  "qwik": "./lib/index.qwik.mjs"
 }
