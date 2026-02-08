@@ -16,7 +16,7 @@ import {
   setSelectionRange,
   getSelectionRange,
 } from "../../../entities/selection/selection";
-import { isHTMLElement } from "../../../entities/shared/utils/dom";
+import { isHTMLElement } from "../../../entities/dom/dom";
 import { useBlockOperations } from "../lib/hooks/use-block-operations";
 import { useToolbarState } from "../lib/hooks/use-toolbar-state";
 import { useFormatting } from "../lib/hooks/use-formatting";
