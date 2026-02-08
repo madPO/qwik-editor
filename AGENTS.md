@@ -26,6 +26,8 @@ Auto-generated from all feature plans. Last updated: 2026-02-05
 ```
 
 ## Active Technologies
+- TypeScript 5.4.5 (Strict Mode) (003-markdown-formatting)
+- In-memory `EditorDocument` state (003-markdown-formatting)
 
 ### Framework & Language
 

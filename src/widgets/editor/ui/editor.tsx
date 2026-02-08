@@ -6,11 +6,17 @@ import {
   useStylesScoped$,
   useSignal,
   useVisibleTask$,
+  type JSXOutput,
 } from "@builder.io/qwik";
 import type { EditorState, Block } from "../../../entities/document/model/document";
 import { ParagraphBlock } from "./paragraph-block";
 import { HeadingBlock } from "./heading-block";
+import { ListItemBlock } from "./list-item-block";
+import { BlockquoteBlock } from "./blockquote-block";
+import { CodeBlockBlock } from "./code-block-block";
+import { HorizontalRuleBlock } from "./horizontal-rule-block";
 import { BlockTypeSelector } from "./block-type-selector";
+
 import { FloatingToolbar } from "./floating-toolbar";
 import {
   setSelectionRange,
@@ -21,8 +27,10 @@ import { useBlockOperations } from "../lib/hooks/use-block-operations";
 import { useToolbarState } from "../lib/hooks/use-toolbar-state";
 import { useFormatting } from "../lib/hooks/use-formatting";
 import { useHistory } from "../lib/hooks/use-history";
+import { useInputRules } from "../../../features/formatting/input-rules";
 import { 
   DEBOUNCE_MS, 
+
   TOOLBAR_OFFSET_Y, 
   SELECTOR_OFFSET_Y,
   DOCUMENT_VERSION 
@@ -118,7 +126,10 @@ export const Editor = component$<EditorProps>(({ content = [], onContentChange$ 
 
   const { applyFormat } = useFormatting(state, blockRefs, handleBlockUpdate);
 
+  const { checkRules } = useInputRules(convertBlockType);
+
   useVisibleTask$(({ cleanup }) => {
+
     cleanup(() => {
       if (debounceTimer.value) {
         clearTimeout(debounceTimer.value);
@@ -277,58 +288,166 @@ export const Editor = component$<EditorProps>(({ content = [], onContentChange$ 
         visible={selectorVisible.value}
         position={selectorPosition}
         currentBlock={state.document.blocks.find((b) => b.id === state.selection?.blockId) || null}
-        onTypeChange$={(type, level) => {
+        onTypeChange$={(type, level, format) => {
           if (state.selection?.blockId) {
-            convertBlockType(state.selection.blockId, type, level);
+            convertBlockType(state.selection.blockId, type, level, format);
           }
         }}
         onClose$={$(() => (selectorVisible.value = false))}
       />
-      {state.document.blocks.map((block) => {
-        const isSelected = state.selection?.blockId === block.id;
-        const onInput$ = $((content: string, anchor: number, focus: number) =>
-          handleBlockUpdate(block.id, content, anchor, focus));
-        const onEnter$ = $((id: string, offset: number) => splitBlock(id, offset));
-        const onBackspaceAtStart$ = $((id: string) => mergeWithPrevious(id));
-        const onDeleteAtEnd$ = $((id: string) => mergeWithNext(id));
-        const onNavigate$ = $((dir: "up" | "down", id: string) => navigate(dir, id));
-        const setRef = $((el: HTMLElement) => {
-          blockRefs[block.id] = el;
-        });
+      {(() => {
+        const renderedBlocks: JSXOutput[] = [];
+        let currentListItems: JSXOutput[] = [];
+        let currentListType: "ordered" | "unordered" | null = null;
+        let listId: string | null = null;
 
-        switch (block.type) {
-          case "paragraph":
-            return (
-              <ParagraphBlock
+        const pushListIfNeeded = () => {
+          if (currentListType && currentListItems.length > 0) {
+            const ListTag = currentListType === "ordered" ? ("ol" as const) : ("ul" as const);
+            renderedBlocks.push(
+              <ListTag key={`list-${listId}`} class="qwik-editor-list">
+                {[...currentListItems]}
+              </ListTag>
+            );
+            currentListItems = [];
+            currentListType = null;
+            listId = null;
+          }
+        };
+
+        const renderBlock = (block: Block) => {
+            const isSelected = state.selection?.blockId === block.id;
+            const onInput$ = $(async (content: string, anchor: number, focus: number) => {
+              const matched = await checkRules(block.id, content);
+              if (matched) {
+                return;
+              }
+              handleBlockUpdate(block.id, content, anchor, focus);
+            });
+            const onEnter$ = $((id: string, offset: number) => splitBlock(id, offset));
+            const onBackspaceAtStart$ = $((id: string) => mergeWithPrevious(id));
+            const onDeleteAtEnd$ = $((id: string) => mergeWithNext(id));
+            const onNavigate$ = $((dir: "up" | "down", id: string) => navigate(dir, id));
+            const setRef = $((el: HTMLElement) => {
+              blockRefs[block.id] = el;
+            });
+
+            const style = block.quoteLevel ? { marginLeft: `${block.quoteLevel * 1}rem` } : {};
+
+            switch (block.type) {
+                case "paragraph":
+                  return (
+                    <ParagraphBlock
+                      key={block.id}
+                      block={block}
+                      isSelected={isSelected}
+                      onInput$={onInput$}
+                      onEnter$={onEnter$}
+                      onBackspaceAtStart$={onBackspaceAtStart$}
+                      onDeleteAtEnd$={onDeleteAtEnd$}
+                      onNavigate$={onNavigate$}
+                      ref={setRef}
+                      style={style}
+                    />
+                  );
+                case "heading":
+                  return (
+                    <HeadingBlock
+                      key={block.id}
+                      block={block}
+                      isSelected={isSelected}
+                      onInput$={onInput$}
+                      onEnter$={onEnter$}
+                      onBackspaceAtStart$={onBackspaceAtStart$}
+                      onDeleteAtEnd$={onDeleteAtEnd$}
+                      onNavigate$={onNavigate$}
+                      ref={setRef}
+                      style={style}
+                    />
+                  );
+                case "blockquote":
+                  return (
+                    <BlockquoteBlock
+                      key={block.id}
+                      block={block}
+                      isSelected={isSelected}
+                      onInput$={onInput$}
+                      onEnter$={onEnter$}
+                      onBackspaceAtStart$={onBackspaceAtStart$}
+                      onDeleteAtEnd$={onDeleteAtEnd$}
+                      onNavigate$={onNavigate$}
+                      ref={setRef}
+                      style={style}
+                    />
+                  );
+                case "code-block":
+                  return (
+                    <CodeBlockBlock
+                      key={block.id}
+                      block={block}
+                      isSelected={isSelected}
+                      onInput$={onInput$}
+                      onEnter$={onEnter$}
+                      onBackspaceAtStart$={onBackspaceAtStart$}
+                      onDeleteAtEnd$={onDeleteAtEnd$}
+                      onNavigate$={onNavigate$}
+                      ref={setRef}
+                      style={style}
+                    />
+                  );
+                case "horizontal-rule":
+                  return (
+                    <HorizontalRuleBlock
+                      key={block.id}
+                      block={block}
+                      isSelected={isSelected}
+                      ref={setRef}
+                      style={style}
+                    />
+                  );
+                  default:
+                      return null;
+              }
+        };
+
+        for (const block of state.document.blocks) {
+          if (block.type === "list-item") {
+            if (currentListType && currentListType !== block.format) {
+              pushListIfNeeded();
+            }
+            if (!currentListType) {
+              currentListType = block.format;
+              listId = block.id;
+            }
+            const isSelected = state.selection?.blockId === block.id;
+            const onInput$ = $(async (content: string, anchor: number, focus: number) => {
+                const matched = await checkRules(block.id, content);
+                if (matched) return;
+                handleBlockUpdate(block.id, content, anchor, focus);
+            });
+            currentListItems.push(
+              <ListItemBlock
                 key={block.id}
                 block={block}
                 isSelected={isSelected}
                 onInput$={onInput$}
-                onEnter$={onEnter$}
-                onBackspaceAtStart$={onBackspaceAtStart$}
-                onDeleteAtEnd$={onDeleteAtEnd$}
-                onNavigate$={onNavigate$}
-                ref={setRef}
+                onEnter$={$((id, offset) => splitBlock(id, offset))}
+                onBackspaceAtStart$={$((id) => mergeWithPrevious(id))}
+                onDeleteAtEnd$={$((id) => mergeWithNext(id))}
+                onNavigate$={$((dir, id) => navigate(dir, id))}
+                ref={$((el) => { blockRefs[block.id] = el; })}
+                style={block.quoteLevel ? { marginLeft: `${block.quoteLevel * 1}rem` } : {}}
               />
             );
-          case "heading":
-            return (
-              <HeadingBlock
-                key={block.id}
-                block={block}
-                isSelected={isSelected}
-                onInput$={onInput$}
-                onEnter$={onEnter$}
-                onBackspaceAtStart$={onBackspaceAtStart$}
-                onDeleteAtEnd$={onDeleteAtEnd$}
-                onNavigate$={onNavigate$}
-                ref={setRef}
-              />
-            );
-          default:
-            return null;
+          } else {
+            pushListIfNeeded();
+            const rendered = renderBlock(block);
+            if (rendered) renderedBlocks.push(rendered);
+          }
         }
-      })}
+        pushListIfNeeded();
+        return renderedBlocks;
+      })()}
     </div>
   );
 });

@@ -94,6 +94,22 @@ export const FloatingToolbar = component$<FloatingToolbarProps>(
         >
           I
         </button>
+        <button
+          title="Strikethrough"
+          aria-label="Format as strikethrough"
+          onClick$={() => onFormat$("strikethrough")}
+          style={{ textDecoration: "line-through" }}
+        >
+          S
+        </button>
+        <button
+          title="Code"
+          aria-label="Format as code"
+          onClick$={() => onFormat$("code")}
+          style={{ fontFamily: "monospace" }}
+        >
+          {"<>"}
+        </button>
         <div class="toolbar-separator" />
         <button
           title="Link"

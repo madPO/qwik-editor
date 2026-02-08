@@ -50,6 +50,48 @@
   font-size: 1.25rem;
 }
 
+.editor-blockquote {
+  margin: 0.5rem 0;
+  padding-left: 1rem;
+  border-left: 4px solid #ddd;
+  color: #666;
+  font-style: italic;
+  outline: none;
+}
+
+.editor-blockquote.selected {
+  border-left-color: #007bff;
+}
+
+.editor-list {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.editor-list-item {
+  margin: 0.25rem 0;
+  outline: none;
+}
+
+.editor-code-block {
+  margin: 0.5rem 0;
+  padding: 1rem;
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+  font-size: 85%;
+  line-height: 1.45;
+  white-space: pre;
+  overflow-x: auto;
+  outline: none;
+}
+
+.editor-horizontal-rule {
+  margin: 1.5rem 0;
+  border: 0;
+  border-top: 1px solid #ddd;
+}
+
 .editor-placeholder {
   color: #aaa;
   font-style: italic;

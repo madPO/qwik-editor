@@ -5,6 +5,7 @@ import { FLOATING_UI_Z_INDEX } from "../lib/constants/ui";
 export interface BlockTypeOption {
   type: BlockType;
   level?: 1 | 2 | 3;
+  format?: "ordered" | "unordered";
   label: string;
 }
 
@@ -13,13 +14,18 @@ const OPTIONS: BlockTypeOption[] = [
   { type: "heading", level: 1, label: "Heading 1" },
   { type: "heading", level: 2, label: "Heading 2" },
   { type: "heading", level: 3, label: "Heading 3" },
+  { type: "list-item", format: "unordered", label: "Bulleted List" },
+  { type: "list-item", format: "ordered", label: "Numbered List" },
+  { type: "blockquote", label: "Quote" },
+  { type: "code-block", label: "Code Block" },
+  { type: "horizontal-rule", label: "Separator" },
 ];
 
 export interface BlockTypeSelectorProps {
   /** The currently selected block */
   currentBlock: Block | null;
   /** Callback when user selects a new block type */
-  onTypeChange$: PropFunction<(newType: BlockType, level?: 1 | 2 | 3) => void>;
+  onTypeChange$: PropFunction<(newType: BlockType, level?: 1 | 2 | 3, format?: "ordered" | "unordered") => void>;
   /** Whether the selector is currently visible */
   visible: boolean;
   /** Position for the selector */
@@ -66,7 +72,7 @@ export const BlockTypeSelector = component$<BlockTypeSelectorProps>(
       } else if (e.key === "Enter") {
         e.preventDefault();
         const option = OPTIONS[selectedIndex.value];
-        onTypeChange$(option.type, option.level);
+        onTypeChange$(option.type, option.level, option.format);
         onClose$();
       } else if (e.key === "Escape") {
         e.preventDefault();
@@ -106,7 +112,7 @@ export const BlockTypeSelector = component$<BlockTypeSelectorProps>(
             class={`selector-option ${selectedIndex.value === index ? "active" : ""}`}
             role="menuitem"
             onClick$={() => {
-              onTypeChange$(option.type, option.level);
+              onTypeChange$(option.type, option.level, option.format);
               onClose$();
             }}
           >

@@ -6,13 +6,13 @@ import {
   useVisibleTask$,
   type CSSProperties,
 } from "@builder.io/qwik";
-import type { ParagraphBlock as ParagraphBlockModel } from "../../../entities/document/model/document";
+import type { ListItemBlock as ListItemBlockModel } from "../../../entities/document/model/document";
 import { getSelectionRange } from "../../../entities/selection/selection";
 import { isHTMLElement } from "../../../entities/dom/dom";
 
-export interface ParagraphBlockProps {
-  /** The paragraph block data to render */
-  block: ParagraphBlockModel;
+export interface ListItemBlockProps {
+  /** The list-item block data to render */
+  block: ListItemBlockModel;
   /** Whether this block is currently selected */
   isSelected: boolean;
   /** Optional style override */
@@ -32,21 +32,9 @@ export interface ParagraphBlockProps {
 }
 
 /**
- * Renders a paragraph block as a contentEditable <p> element.
- *
- * Supports inline formatting, bidirectional synchronization with the document state,
- * and keyboard navigation (Enter, Backspace, Delete, Arrows).
- * 
- * @example
- * ```tsx
- * <ParagraphBlock
- *   block={{ id: 'p1', type: 'paragraph', content: 'Hello <b>world</b>' }}
- *   isSelected={true}
- *   onInput$={(content) => updateState(content)}
- * />
- * ```
+ * Renders a list-item block as a contentEditable <li> element.
  */
-export const ParagraphBlock = component$<ParagraphBlockProps>(
+export const ListItemBlock = component$<ListItemBlockProps>(
   ({
     block,
     isSelected,
@@ -58,21 +46,11 @@ export const ParagraphBlock = component$<ParagraphBlockProps>(
     onNavigate$,
     ref,
   }) => {
-    /**
-     * elRef holds the reference to the contentEditable element.
-     * Justification (Principle VII): This is a non-reactive DOM reference used for
-     * imperative operations (manual content syncing and selection measurement)
-     * that cannot be handled purely through Qwik's reactive system without cursor jumps.
-     */
     const elRef = useSignal<HTMLElement>();
 
-    // Sync content from state to DOM only when necessary
     useVisibleTask$(({ track }) => {
       const content = track(() => block.content);
       if (elRef.value) {
-        // Only update if the DOM is actually different from the state
-        // This prevents cursor jumps during typing because the browser
-        // already updated the DOM, so elRef.value.innerHTML === content
         if (elRef.value.innerHTML !== content) {
           elRef.value.innerHTML = content;
         }
@@ -80,7 +58,7 @@ export const ParagraphBlock = component$<ParagraphBlockProps>(
     });
 
     return (
-      <p
+      <li
         ref={(el) => {
           elRef.value = el;
           if (ref) {
@@ -92,10 +70,10 @@ export const ParagraphBlock = component$<ParagraphBlockProps>(
           }
         }}
         data-block-id={block.id}
-        data-block-type="paragraph"
+        data-block-type="list-item"
         contentEditable="true"
         style={style}
-        class={isSelected ? "editor-paragraph selected" : "editor-paragraph"}
+        class={isSelected ? "editor-list-item selected" : "editor-list-item"}
         onInput$={(e) => {
           const target = e.target;
           if (!isHTMLElement(target)) return;

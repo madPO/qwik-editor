@@ -18,6 +18,12 @@ export function useFormatting(
       case "italic":
         toggleFormat("em");
         break;
+      case "strikethrough":
+        toggleFormat("del");
+        break;
+      case "code":
+        toggleFormat("code");
+        break;
       case "createLink":
         if (value) toggleFormat("a", { href: value });
         break;

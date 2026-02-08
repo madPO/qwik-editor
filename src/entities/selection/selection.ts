@@ -97,23 +97,69 @@ export function toggleFormat(
   // Find the block root to ensure we stay within it
   let blockRoot: HTMLElement | null = null;
   let curr: Node | null = range.commonAncestorContainer;
+  let spansMultipleBlocks = false;
+
   while (curr && curr !== doc.body) {
     if (curr instanceof HTMLElement && curr.hasAttribute("data-block-id")) {
       blockRoot = curr;
       break;
     }
+    if (curr instanceof HTMLElement && curr.classList.contains("qwik-editor")) {
+      spansMultipleBlocks = true;
+      break;
+    }
     curr = curr.parentNode;
+  }
+
+  if (spansMultipleBlocks) {
+    const blocks = Array.from(doc.querySelectorAll("[data-block-id]"));
+    const selectedBlocks = blocks.filter((block) => selection.containsNode(block, true));
+
+    for (const block of selectedBlocks) {
+      if (!(block instanceof HTMLElement)) continue;
+
+      const blockRange = doc.createRange();
+      blockRange.selectNodeContents(block);
+
+      // Intersect range with selection
+      const intersectRange = doc.createRange();
+      const startNode = range.compareBoundaryPoints(Range.START_TO_START, blockRange) > 0 ? range.startContainer : blockRange.startContainer;
+      const startOffset = range.compareBoundaryPoints(Range.START_TO_START, blockRange) > 0 ? range.startOffset : blockRange.startOffset;
+      const endNode = range.compareBoundaryPoints(Range.END_TO_END, blockRange) < 0 ? range.endContainer : blockRange.endContainer;
+      const endOffset = range.compareBoundaryPoints(Range.END_TO_END, blockRange) < 0 ? range.endOffset : blockRange.endOffset;
+
+      try {
+        intersectRange.setStart(startNode, startOffset);
+        intersectRange.setEnd(endNode, endOffset);
+
+        if (!intersectRange.collapsed) {
+          applyFormattingToRange(intersectRange, tag, attrs, block, doc);
+        }
+      } catch (e) {
+        // Skip blocks that can't be formatted
+      }
+    }
+    return;
   }
 
   if (!blockRoot) return;
 
+  applyFormattingToRange(range, tag, attrs, blockRoot, doc);
+}
+
+function applyFormattingToRange(
+  range: Range,
+  tag: string,
+  attrs: Record<string, string>,
+  blockRoot: HTMLElement,
+  doc: Document
+) {
   // Check if we are already inside such a tag
   let existing: HTMLElement | null = null;
   let node: Node | null = range.commonAncestorContainer;
   if (node.nodeType === Node.TEXT_NODE) node = node.parentNode;
 
   if (node instanceof HTMLElement) {
-    // Check for both the tag and common aliases (e.g., strong/b, em/i)
     const tagQuery = tag === "strong" ? "strong, b" : tag === "em" ? "em, i" : tag;
     existing = node.closest(tagQuery);
 
@@ -123,13 +169,11 @@ export function toggleFormat(
   }
 
   if (existing) {
-    // For links, if a new href is provided, update it instead of removing
     if (tag === "a" && attrs.href && existing.getAttribute("href") !== attrs.href) {
       existing.setAttribute("href", attrs.href);
       return;
     }
 
-    // Remove the formatting (Unwrap)
     const parent = existing.parentNode;
     if (parent) {
       const fragment = doc.createDocumentFragment();
@@ -139,7 +183,6 @@ export function toggleFormat(
       parent.replaceChild(fragment, existing);
     }
   } else {
-    // Apply the formatting (Wrap)
     const el = doc.createElement(tag);
     for (const [key, val] of Object.entries(attrs)) {
       el.setAttribute(key, val);
@@ -149,15 +192,8 @@ export function toggleFormat(
       const content = range.extractContents();
       el.appendChild(content);
       range.insertNode(el);
-
-      // Restore selection to the newly formatted content
-      const newRange = doc.createRange();
-      newRange.selectNodeContents(el);
-      selection.removeAllRanges();
-      selection.addRange(newRange);
     } catch {
-      // In case of error (e.g. range splitting elements in unsupported ways),
-      // we gracefully fail to apply the format.
+      // Gracefully fail
     }
   }
 }

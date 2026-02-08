@@ -4,16 +4,19 @@ import {
   type Signal,
   useSignal,
   useVisibleTask$,
+  type CSSProperties,
 } from "@builder.io/qwik";
 import type { HeadingBlock as HeadingBlockModel } from "../../../entities/document/model/document";
 import { getSelectionRange } from "../../../entities/selection/selection";
-import { isHTMLElement } from "../../../entities/shared/utils/dom";
+import { isHTMLElement } from "../../../entities/dom/dom";
 
 export interface HeadingBlockProps {
   /** The heading block data to render */
   block: HeadingBlockModel;
   /** Whether this block is currently selected */
   isSelected: boolean;
+  /** Optional style override */
+  style?: string | CSSProperties;
   /** Callback fired when content changes */
   onInput$: PropFunction<(newContent: string, anchorOffset: number, focusOffset: number) => void>;
   /** Callback when user presses Enter */
@@ -47,6 +50,7 @@ export const HeadingBlock = component$<HeadingBlockProps>(
   ({
     block,
     isSelected,
+    style,
     onInput$,
     onEnter$,
     onBackspaceAtStart$,
@@ -89,6 +93,7 @@ export const HeadingBlock = component$<HeadingBlockProps>(
         data-block-type="heading"
         data-heading-level={block.level}
         contentEditable="true"
+        style={style}
         class={
           isSelected
             ? `editor-heading editor-heading-${block.level} selected`

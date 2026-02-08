@@ -1,7 +1,13 @@
 /**
  * Core block types supported by the editor.
  */
-export type BlockType = "paragraph" | "heading";
+export type BlockType =
+  | "paragraph"
+  | "heading"
+  | "list-item"
+  | "blockquote"
+  | "code-block"
+  | "horizontal-rule";
 
 /**
  * Base interface for all content blocks.
@@ -11,6 +17,8 @@ export interface BaseBlock {
   id: string;
   /** The type of the block */
   type: BlockType;
+  /** Nesting level in blockquotes (0 = not in blockquote) */
+  quoteLevel?: number;
 }
 
 /**
@@ -34,9 +42,57 @@ export interface HeadingBlock extends BaseBlock {
 }
 
 /**
+ * Represents an item in a list.
+ */
+export interface ListItemBlock extends BaseBlock {
+  type: "list-item";
+  /** Whether the list is ordered or unordered */
+  format: "ordered" | "unordered";
+  /** Nesting level (0 = root) */
+  indent?: number;
+  /** The content of the list item (HTML) */
+  content: string;
+}
+
+/**
+ * Represents a blockquote.
+ */
+export interface BlockquoteBlock extends BaseBlock {
+  type: "blockquote";
+  /** The content of the blockquote (HTML) */
+  content: string;
+}
+
+/**
+ * Represents a fenced code block.
+ */
+export interface CodeBlockBlock extends BaseBlock {
+  type: "code-block";
+  /** Programming language for syntax highlighting (optional) */
+  language?: string;
+  /** The raw code content */
+  content: string;
+}
+
+/**
+ * Represents a horizontal rule (thematic break).
+ */
+export interface HorizontalRuleBlock extends BaseBlock {
+  type: "horizontal-rule";
+  /** Always empty for HR, but included for consistency in Block union */
+  content: "";
+}
+
+/**
  * Union type representing any valid content block.
  */
-export type Block = ParagraphBlock | HeadingBlock;
+export type Block =
+  | ParagraphBlock
+  | HeadingBlock
+  | ListItemBlock
+  | BlockquoteBlock
+  | CodeBlockBlock
+  | HorizontalRuleBlock;
 
 /**
  * Represents the complete collection of content blocks in sequential order.
