@@ -1,38 +1,26 @@
 <!--
 Sync Impact Report - Constitution Update
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Version: 1.1.0 → 1.1.1
-Change Type: PATCH - Tooling specification update
+Version: 1.1.1 → 1.2.0
+Change Type: MINOR - New Principle Added
 Ratification Date: 2026-02-04
-Last Amended: 2026-02-04
-
-Tooling Changes:
-  ✓ Changed: ESLint → Oxlint (faster Rust-based linter)
-  ✓ Changed: Prettier → Oxfmt (faster Rust-based formatter)
-
-Rationale: Oxc toolchain provides 50-100x faster linting and formatting with
-compatible rule sets, significantly improving developer experience and CI times.
+Last Amended: 2026-02-08
 
 Principle Changes:
-  • No principle changes (all 8 principles unchanged)
+  • Added: IX. Feature Slice Design (FSD) Structure
+  • Note: Explicit prohibition of 'shared' layer to enforce domain ownership
 
 Section Changes:
-  ✓ Updated: Quality Standards - Code Quality section
-  ✓ Updated: Development Workflow - Code Review Requirements section
+  ✓ Added: Core Principles - Principle IX
 
 Template Alignment Status:
-  ✅ .specify/templates/plan-template.md - Compatible (tooling agnostic)
-  ✅ .specify/templates/spec-template.md - Compatible (tooling agnostic)
-  ✅ .specify/templates/tasks-template.md - Compatible (tooling agnostic)
-  ✅ package.json - Requires updates (ESLint/Prettier deps → Oxlint/Oxfmt)
+  ✅ .specify/templates/plan-template.md - Compatible (structure section is open-ended)
+  ✅ .specify/templates/tasks-template.md - Compatible (generic tasks)
+  ✅ src/structure - Validated (current structure uses entities/widgets, no shared/)
 
 Follow-up Actions:
-  • Update package.json dependencies (remove ESLint, Prettier)
-  • Add oxlint and oxfmt to devDependencies
-  • Update npm scripts (lint, fmt, fmt.check)
-  • Create oxlintrc.json configuration
-  • Apply low coupling principles to component interfaces during MVP
-  • Monitor complexity as components grow
+  • Ensure new feature plans explicitly map to FSD layers (entities, features, widgets)
+  • Reject any PR introducing a 'src/shared' directory
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -->
 
@@ -164,6 +152,23 @@ architecture where changes ripple uncontrollably. High cohesion ensures develope
 can understand and modify features in isolation, accelerating development and
 reducing bugs.
 
+### IX. Feature Slice Design (FSD) Structure
+
+The project structure MUST adhere to Feature Sliced Design methodology, with a strict
+prohibition on the `shared` layer:
+
+- **Forbidden Layer**: The `shared` directory is PROHIBITED.
+- **Entity/Feature Promotion**: Utility functions or shared code MUST be placed in
+  an appropriate `entities` or `features` slice.
+  - Example: Instead of `shared/html/utils.ts`, create `entities/html/utils.ts`.
+- **Layers**: Code MUST be organized into standard FSD layers (except shared):
+  `app`, `processes`, `pages`, `widgets`, `features`, `entities`.
+
+**Rationale**: The `shared` layer often degrades into a disorganized "junk drawer"
+of low-cohesion code. By forcing developers to classify utilities into `entities`
+or `features`, we ensure every piece of code has a clear domain ownership and strictly
+defined dependencies, maintaining the "Low Coupling, High Cohesion" principle.
+
 ## Quality Standards
 
 ### Code Quality
@@ -227,9 +232,9 @@ All changes MUST:
 - `main` branch: production-ready code
 - Feature branches: `feature/description-of-feature`
 - Semantic versioning: MAJOR.MINOR.PATCH
-  - MAJOR: Breaking API changes
-  - MINOR: New features, backwards compatible
-  - PATCH: Bug fixes, no API changes
+- MAJOR: Breaking API changes
+- MINOR: New features, backwards compatible
+- PATCH: Bug fixes, no API changes
 
 ## Governance
 
@@ -256,4 +261,4 @@ Changes to this constitution require:
 - MINOR: New principle or section added, materially expanded guidance
 - PATCH: Clarifications, wording improvements, non-semantic fixes
 
-**Version**: 1.1.1 | **Ratified**: 2026-02-04 | **Last Amended**: 2026-02-04
+**Version**: 1.2.0 | **Ratified**: 2026-02-04 | **Last Amended**: 2026-02-08
