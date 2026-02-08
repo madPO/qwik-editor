@@ -1,0 +1,6 @@
+{
+  "name": "qwik-editor",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+}
