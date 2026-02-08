@@ -3,4 +3,6 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "runArgs": ["-p", "5173:5173", "-p", "5432:5432"],
+  "forwardPorts": [5173, 5432],
 }

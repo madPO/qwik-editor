@@ -19,6 +19,7 @@ RUN rm /tmp/node.tar.xz
 
 RUN curl https://github.com/pnpm/pnpm/releases/download/v10.28.2/pnpm-linux-x64 --fail --show-error --location --silent --output /usr/local/bin/pnpm
 RUN chmod a+rx /usr/local/bin/pnpm
+RUN dnf install -y https://github.com/PowerShell/PowerShell/releases/download/v7.5.1/powershell-7.5.1-1.rh.x86_64.rpm
 
 RUN mkdir -p /home/developer/.local/share/pnpm/store \
     && pnpm config set store-dir /home/developer/.local/share/pnpm/store
